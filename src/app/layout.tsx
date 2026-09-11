@@ -5,7 +5,7 @@ import { Toaster } from 'sonner'
 import { Intestazione } from '@/components/layout/intestazione'
 import { Piede } from '@/components/layout/piede'
 import { ProviderCarrello } from '@/components/carrello/contesto-carrello'
-import { carrelloVuoto } from '@/lib/carrello/tipi'
+import { leggiCarrello } from '@/lib/carrello/server'
 import { fontDisplay, fontSans } from '@/lib/fonts'
 import { site } from '@/lib/site'
 import './globals.css'
@@ -39,14 +39,17 @@ export const viewport: Viewport = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const locale = await getLocale()
-  const messages = await getMessages()
+  const [locale, messages, carrello] = await Promise.all([
+    getLocale(),
+    getMessages(),
+    leggiCarrello(),
+  ])
 
   return (
     <html lang={locale} className={`${fontDisplay.variable} ${fontSans.variable}`}>
       <body className="flex min-h-dvh flex-col antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <ProviderCarrello iniziale={carrelloVuoto}>
+          <ProviderCarrello iniziale={carrello}>
             <a href="#contenuto" className="skip-link">
               Vai al contenuto
             </a>

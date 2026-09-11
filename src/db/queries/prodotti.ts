@@ -10,73 +10,30 @@ import {
   type Finitura,
 } from '@/db/schema'
 import { aProdottoDominio, aVarianteDominio, numero } from '@/db/queries/mappatori'
+import {
+  PER_PAGINA_PREDEFINITO,
+  type EsitoCatalogo,
+  type EstremiCatalogo,
+  type FiltriCatalogo,
+  type ImmagineVetrina,
+  type Ordinamento,
+  type ProdottoVetrina,
+} from '@/lib/catalogo/tipi'
 import { disponibilitaVariante, type Disponibilita } from '@/lib/dominio/disponibilita'
 import { fasciaPrezzo, prezzoVariante } from '@/lib/dominio/prezzi'
+
+export {
+  ORDINAMENTI,
+  ETICHETTE_ORDINAMENTO,
+  PER_PAGINA_PREDEFINITO,
+  type EsitoCatalogo,
+  type EstremiCatalogo,
+  type FiltriCatalogo,
+  type ImmagineVetrina,
+  type Ordinamento,
+  type ProdottoVetrina,
+} from '@/lib/catalogo/tipi'
 import type { ProdottoDominio, VarianteDominio } from '@/lib/dominio/tipi'
-
-export const ORDINAMENTI = [
-  'novita',
-  'prezzo-asc',
-  'prezzo-desc',
-  'altezza-asc',
-  'altezza-desc',
-] as const
-
-export type Ordinamento = (typeof ORDINAMENTI)[number]
-
-export const ETICHETTE_ORDINAMENTO: Record<Ordinamento, string> = {
-  novita: 'Novità',
-  'prezzo-asc': 'Prezzo crescente',
-  'prezzo-desc': 'Prezzo decrescente',
-  'altezza-asc': 'Dal più basso',
-  'altezza-desc': 'Dal più alto',
-}
-
-export type FiltriCatalogo = {
-  collezioneSlug?: string
-  altezzaMinCm?: number
-  altezzaMaxCm?: number
-  finiture?: Finitura[]
-  prezzoMinCents?: number
-  prezzoMaxCents?: number
-  soloDisponibili?: boolean
-  ambiente?: 'interno' | 'esterno'
-  ordinamento?: Ordinamento
-  pagina?: number
-  perPagina?: number
-}
-
-export type ImmagineVetrina = { url: string; alt: string }
-
-export type ProdottoVetrina = {
-  id: string
-  slug: string
-  nome: string
-  collezione: { slug: string; nome: string } | null
-  prezzoMinCents: number
-  prezzoMaxCents: number
-  altezzaMinCm: number
-  altezzaMaxCm: number
-  pezzoUnico: boolean
-  suOrdinazione: boolean
-  giorniDiAttesa: number
-  acquistabile: boolean
-  interno: boolean
-  esterno: boolean
-  immagine: ImmagineVetrina | null
-  immagineSecondaria: ImmagineVetrina | null
-  creatoIl: Date
-}
-
-export type EsitoCatalogo = {
-  prodotti: ProdottoVetrina[]
-  totale: number
-  pagina: number
-  perPagina: number
-  haAltre: boolean
-}
-
-export const PER_PAGINA_PREDEFINITO = 12
 
 /** Condizioni che si applicano alle varianti: decidono quali versioni del pezzo mostrare. */
 function condizioniVariante(filtri: FiltriCatalogo): SQL[] {
@@ -406,14 +363,6 @@ export async function prodottiInEvidenza(quanti = 4): Promise<ProdottoVetrina[]>
 /* ------------------------------------------------------------------ *
  * Estremi dei filtri: la fascia va calcolata sul catalogo vero
  * ------------------------------------------------------------------ */
-
-export type EstremiCatalogo = {
-  altezzaMinCm: number
-  altezzaMaxCm: number
-  prezzoMinCents: number
-  prezzoMaxCents: number
-  finiture: Finitura[]
-}
 
 export async function estremiCatalogo(collezioneSlug?: string): Promise<EstremiCatalogo> {
   const condizioni: SQL[] = [eq(products.status, 'active'), isNull(productVariants.archivedAt)]
