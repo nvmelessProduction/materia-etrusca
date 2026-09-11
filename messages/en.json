@@ -1,0 +1,55 @@
+{
+  "navigazione": {
+    "collezioni": "Collections",
+    "progetto": "Design your corner",
+    "suMisura": "Bespoke",
+    "storia": "Story",
+    "contatti": "Contact",
+    "menu": "Menu",
+    "chiudi": "Close",
+    "carrello": "Cart",
+    "cerca": "Search",
+    "vaiAlContenuto": "Skip to content"
+  },
+  "comune": {
+    "caricamento": "Loading…",
+    "caricaAltri": "Load more",
+    "riprova": "Try again",
+    "annulla": "Cancel",
+    "conferma": "Confirm",
+    "salva": "Save",
+    "indietro": "Back",
+    "avanti": "Next",
+    "obbligatorio": "Required field",
+    "errore": "Something went wrong. Please try again in a moment."
+  },
+  "prodotto": {
+    "pezzoUnico": "One of a kind",
+    "suOrdinazione": "Made to order",
+    "esaurito": "Sold out",
+    "disponibile": "In stock",
+    "altezza": "Height",
+    "diametro": "Diameter",
+    "peso": "Weight",
+    "finitura": "Finish",
+    "aggiungiAlCarrello": "Add to cart",
+    "imperfezioni": "Every piece is cast and finished by hand: small variations are the signature, not a flaw."
+  },
+  "carrello": {
+    "titolo": "Cart",
+    "vuoto": "You haven't chosen anything yet.",
+    "subtotale": "Subtotal",
+    "spedizione": "Shipping",
+    "totale": "Total",
+    "vaiAlPagamento": "Checkout",
+    "pesoTotale": "Total weight"
+  },
+  "piede": {
+    "newsletter": "I write rarely, only when something new comes out.",
+    "iscriviti": "Subscribe",
+    "laboratorio": "The workshop",
+    "assistenza": "Support",
+    "legale": "Legal",
+    "diritti": "All rights reserved."
+  }
+}

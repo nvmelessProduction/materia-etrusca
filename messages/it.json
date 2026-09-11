@@ -1,0 +1,55 @@
+{
+  "navigazione": {
+    "collezioni": "Collezioni",
+    "progetto": "Progetta il tuo angolo",
+    "suMisura": "Su misura",
+    "storia": "Storia",
+    "contatti": "Contatti",
+    "menu": "Menu",
+    "chiudi": "Chiudi",
+    "carrello": "Carrello",
+    "cerca": "Cerca",
+    "vaiAlContenuto": "Vai al contenuto"
+  },
+  "comune": {
+    "caricamento": "Carico…",
+    "caricaAltri": "Carica altri",
+    "riprova": "Riprova",
+    "annulla": "Annulla",
+    "conferma": "Conferma",
+    "salva": "Salva",
+    "indietro": "Indietro",
+    "avanti": "Avanti",
+    "obbligatorio": "Campo obbligatorio",
+    "errore": "Qualcosa non ha funzionato. Riprova fra un momento."
+  },
+  "prodotto": {
+    "pezzoUnico": "Pezzo unico",
+    "suOrdinazione": "Su ordinazione",
+    "esaurito": "Esaurito",
+    "disponibile": "Disponibile",
+    "altezza": "Altezza",
+    "diametro": "Diametro",
+    "peso": "Peso",
+    "finitura": "Finitura",
+    "aggiungiAlCarrello": "Aggiungi al carrello",
+    "imperfezioni": "Ogni pezzo è colato e rifinito a mano: le piccole variazioni sono la firma, non un difetto."
+  },
+  "carrello": {
+    "titolo": "Carrello",
+    "vuoto": "Non hai ancora scelto nulla.",
+    "subtotale": "Subtotale",
+    "spedizione": "Spedizione",
+    "totale": "Totale",
+    "vaiAlPagamento": "Vai al pagamento",
+    "pesoTotale": "Peso totale"
+  },
+  "piede": {
+    "newsletter": "Ti scrivo poco, solo quando esce qualcosa di nuovo.",
+    "iscriviti": "Iscriviti",
+    "laboratorio": "Il laboratorio",
+    "assistenza": "Assistenza",
+    "legale": "Legale",
+    "diritti": "Tutti i diritti riservati."
+  }
+}

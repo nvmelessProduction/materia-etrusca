@@ -1,0 +1,178 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   Materia Etrusca — design token.
+   Nessun colore va scritto a mano nei componenti: si usano solo questi.
+   ------------------------------------------------------------------ */
+@theme {
+  /* Palette */
+  --color-calce: #f7f4ee;
+  --color-tufo: #e8e1d5;
+  --color-cemento: #c4b9a5;
+  --color-terracotta: #8c4a2f;
+  --color-oliva: #6b7355;
+  --color-antracite: #2b2825;
+
+  /* Varianti d'appoggio, derivate: servono per hover e superfici scure */
+  --color-terracotta-scuro: #6f3a24;
+  --color-oliva-scuro: #555c44;
+  --color-antracite-chiaro: #413c37;
+
+  /* Ruoli semantici */
+  --color-sfondo: var(--color-calce);
+  --color-superficie: var(--color-tufo);
+  --color-bordo: var(--color-cemento);
+  --color-testo: var(--color-antracite);
+  --color-testo-tenue: #6f675d;
+  --color-azione: var(--color-terracotta);
+  --color-positivo: var(--color-oliva);
+  --color-errore: #8a2b2b;
+
+  /* Tipografia */
+  --font-display: var(--font-cormorant), 'Cormorant Garamond', 'Times New Roman', serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Il cemento non ha angoli morbidi: si azzerano tutti i raggi. */
+  --radius-*: initial;
+  --radius-none: 0px;
+
+  /* Nessuna ombra colorata: solo neutre e appena percepibili. */
+  --shadow-*: initial;
+  --shadow-none: 0 0 #0000;
+  --shadow-lieve: 0 1px 2px rgba(43, 40, 37, 0.06);
+  --shadow-sollevato: 0 8px 24px rgba(43, 40, 37, 0.1);
+
+  /* Transizioni lente, mai lampeggianti. */
+  --default-transition-duration: 300ms;
+  --default-transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Ritmo verticale */
+  --spacing-sezione: 5rem;
+  --spacing-sezione-lg: 8rem;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-radius: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-sfondo);
+    color: var(--color-testo);
+    font-family: var(--font-sans);
+    /* Mai sotto 16px su mobile. */
+    font-size: 1rem;
+    line-height: 1.65;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Focus sempre visibile, mai rimosso. */
+  :focus-visible {
+    outline: 2px solid var(--color-antracite);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background-color: var(--color-terracotta);
+    color: var(--color-calce);
+  }
+
+  /* Campi: aspetto uniforme e leggibile su iOS (niente zoom automatico). */
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: max(1rem, 16px);
+  }
+}
+
+@layer components {
+  /* Contenitore unico del sito: larghezza e gutter coerenti ovunque. */
+  .contenitore {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 90rem;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .contenitore {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .contenitore {
+      padding-inline: 4rem;
+    }
+  }
+
+  /* Titolo di sezione: maiuscoletto spaziato, discreto. */
+  .occhiello {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-testo-tenue);
+  }
+}
+
+@utility skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+
+  &:focus {
+    left: 1rem;
+    top: 1rem;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--color-antracite);
+    color: var(--color-calce);
+  }
+}
