@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 
 type Stato = 'inattivo' | 'invio' | 'fatto' | 'errore'
 
-export function ModuloNewsletter() {
+export function ModuloNewsletter({ idPrefisso = 'newsletter' }: { idPrefisso?: string }) {
   const [stato, setStato] = useState<Stato>('inattivo')
   const [messaggio, setMessaggio] = useState('')
 
@@ -55,11 +55,11 @@ export function ModuloNewsletter() {
 
       <form onSubmit={invia} className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Label htmlFor="newsletter-email" className="sr-only">
+          <Label htmlFor={`${idPrefisso}-email`} className="sr-only">
             Indirizzo email
           </Label>
           <Input
-            id="newsletter-email"
+            id={`${idPrefisso}-email`}
             name="email"
             type="email"
             required
@@ -75,9 +75,9 @@ export function ModuloNewsletter() {
 
         {/* Esca invisibile per i robot: nessun captcha da risolvere. */}
         <div aria-hidden className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
-          <label htmlFor="newsletter-azienda">Azienda</label>
+          <label htmlFor={`${idPrefisso}-azienda`}>Azienda</label>
           <input
-            id="newsletter-azienda"
+            id={`${idPrefisso}-azienda`}
             name="azienda"
             type="text"
             tabIndex={-1}
@@ -86,8 +86,11 @@ export function ModuloNewsletter() {
         </div>
 
         <div className="flex items-start gap-3">
-          <Checkbox id="newsletter-consenso" name="consenso" required className="mt-0.5" />
-          <Label htmlFor="newsletter-consenso" className="text-testo-tenue text-xs font-normal">
+          <Checkbox id={`${idPrefisso}-consenso`} name="consenso" required className="mt-0.5" />
+          <Label
+            htmlFor={`${idPrefisso}-consenso`}
+            className="text-testo-tenue text-xs font-normal"
+          >
             Acconsento a ricevere le novità via email. Posso cancellarmi quando voglio, il link è in
             fondo a ogni messaggio.
           </Label>

@@ -154,8 +154,9 @@ function Blocco({
         />
       </div>
 
-      <label className="flex items-center gap-3">
+      <label htmlFor="contenuto-pubblicato" className="flex items-center gap-3">
         <Checkbox
+          id="contenuto-pubblicato"
           checked={dati.pubblicato}
           onCheckedChange={(stato) => setDati({ ...dati, pubblicato: stato === true })}
         />

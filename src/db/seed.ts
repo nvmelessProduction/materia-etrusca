@@ -1009,6 +1009,25 @@ async function seminaContenuti(): Promise<void> {
       position: 4,
     },
     {
+      key: 'vetrina.terrazzo-roma',
+      group: 'vetrina',
+      title: 'Un terrazzo a Roma',
+      // Tre righe: foto di partenza, foto finale, didascalia.
+      body: `${foto('prima-terrazzo', 1600, 1200)}
+${foto('dopo-terrazzo', 1600, 1200)}
+Quattro metri per due, pieno sole e molto vento. Due Olle da 75 e un Cippo, tutti grezzi.`,
+      position: 0,
+    },
+    {
+      key: 'vetrina.ingresso-ladispoli',
+      group: 'vetrina',
+      title: 'Un ingresso a Ladispoli',
+      body: `${foto('prima-ingresso', 1600, 1200)}
+${foto('dopo-ingresso', 1600, 1200)}
+Corridoio stretto, pavimento in cotto. Un Cippo da 70 contro il muro chiaro e un Tumulo basso vicino alla porta.`,
+      position: 1,
+    },
+    {
       key: 'home.manifesto',
       group: 'home',
       title: 'Colo il cemento a mano, una forma alla volta.',

@@ -710,8 +710,9 @@ function PassoContatti({
       </div>
 
       <div className="mt-8 space-y-4">
-        <label className="flex items-start gap-3">
+        <label htmlFor="consenso-privacy" className="flex items-start gap-3">
           <Checkbox
+            id="consenso-privacy"
             checked={campi.consensoPrivacy}
             onCheckedChange={(stato) => imposta('consensoPrivacy', stato === true)}
             className="mt-0.5"
@@ -725,8 +726,9 @@ function PassoContatti({
           </span>
         </label>
 
-        <label className="flex items-start gap-3">
+        <label htmlFor="consenso-marketing" className="flex items-start gap-3">
           <Checkbox
+            id="consenso-marketing"
             checked={campi.consensoMarketing}
             onCheckedChange={(stato) => imposta('consensoMarketing', stato === true)}
             className="mt-0.5"

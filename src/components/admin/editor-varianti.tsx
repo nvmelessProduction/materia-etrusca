@@ -1,6 +1,13 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import {
+  cloneElement,
+  isValidElement,
+  useState,
+  useTransition,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -280,16 +287,32 @@ function Campo({
 }: {
   etichetta: string
   nota?: string
-  children: React.ReactNode
+  children: ReactNode
 }) {
-  const id = etichetta.toLowerCase().replace(/[^a-z]+/g, '-')
+  const id = `variante-${slugSemplice(etichetta)}`
+
+  // L'identificativo lo mette il contenitore: l'etichetta deve puntare
+  // sempre al campo giusto, anche quando il modulo si riusa.
+  const campo = isValidElement(children)
+    ? cloneElement(children as ReactElement<Record<string, unknown>>, { id })
+    : children
+
   return (
     <div>
       <Label htmlFor={id} className="text-testo-tenue text-xs">
         {etichetta}
       </Label>
-      <div className="mt-1.5">{children}</div>
+      <div className="mt-1.5">{campo}</div>
       {nota ? <p className="text-testo-tenue mt-1 text-xs">{nota}</p> : null}
     </div>
   )
+}
+
+function slugSemplice(testo: string): string {
+  return testo
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }

@@ -1,6 +1,14 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useState,
+  useTransition,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
@@ -51,6 +59,9 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
       metodoPagamento: pagamentiDisponibili.stripe ? 'stripe' : 'bank_transfer',
       consegnaAlPiano: false,
       fatturaRichiesta: false,
+      // Va dichiarato: senza, il campo resta `undefined` e l'errore che si
+      // legge è quello dello schema, non la frase scritta per le persone.
+      accettaTermini: false,
       newsletter: false,
     },
   })
@@ -110,6 +121,7 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
         <Sezione numero="1" titolo="Dove te lo mando">
           <div className="grid gap-5 sm:grid-cols-2">
             <Campo
+              nome="email"
               etichetta="Email"
               errore={errors.email?.message}
               className="sm:col-span-2"
@@ -119,6 +131,7 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
             </Campo>
 
             <Campo
+              nome="nome-e-cognome"
               etichetta="Nome e cognome"
               errore={errors.nome?.message}
               className="sm:col-span-2"
@@ -127,6 +140,7 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
             </Campo>
 
             <Campo
+              nome="telefono"
               etichetta="Telefono"
               errore={errors.telefono?.message}
               className="sm:col-span-2"
@@ -136,6 +150,7 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
             </Campo>
 
             <Campo
+              nome="indirizzo"
               etichetta="Indirizzo"
               errore={errors.indirizzo?.message}
               className="sm:col-span-2"
@@ -144,6 +159,7 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
             </Campo>
 
             <Campo
+              nome="scala-interno-presso"
               etichetta="Scala, interno, presso"
               errore={errors.indirizzo2?.message}
               className="sm:col-span-2"
@@ -152,12 +168,12 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
               <Input autoComplete="address-line2" {...register('indirizzo2')} />
             </Campo>
 
-            <Campo etichetta="Città" errore={errors.citta?.message}>
+            <Campo nome="citta" etichetta="Città" errore={errors.citta?.message}>
               <Input autoComplete="address-level2" {...register('citta')} />
             </Campo>
 
             <div className="grid grid-cols-2 gap-5">
-              <Campo etichetta="CAP" errore={errors.cap?.message}>
+              <Campo nome="cap" etichetta="CAP" errore={errors.cap?.message}>
                 <Input
                   inputMode="numeric"
                   maxLength={5}
@@ -165,7 +181,7 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
                   {...register('cap')}
                 />
               </Campo>
-              <Campo etichetta="Provincia" errore={errors.provincia?.message}>
+              <Campo nome="provincia" etichetta="Provincia" errore={errors.provincia?.message}>
                 <Input
                   maxLength={2}
                   placeholder="RM"
@@ -176,6 +192,7 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
             </div>
 
             <Campo
+              nome="note-per-la-consegna"
               etichetta="Note per la consegna"
               errore={errors.noteConsegna?.message}
               className="sm:col-span-2"
@@ -231,8 +248,12 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
               ))}
 
               {alPiano && metodoSpedizione !== 'pickup' ? (
-                <label className="border-bordo flex cursor-pointer items-start gap-3 border p-4">
+                <label
+                  htmlFor="consegna-al-piano"
+                  className="border-bordo flex cursor-pointer items-start gap-3 border p-4"
+                >
                   <Checkbox
+                    id="consegna-al-piano"
                     checked={consegnaAlPiano}
                     onCheckedChange={(stato) => setValue('consegnaAlPiano', stato === true)}
                     className="mt-0.5"
@@ -286,8 +307,9 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
           </div>
 
           <div className="border-bordo mt-8 border-t pt-6">
-            <label className="flex cursor-pointer items-start gap-3">
+            <label htmlFor="fattura-richiesta" className="flex cursor-pointer items-start gap-3">
               <Checkbox
+                id="fattura-richiesta"
                 checked={fatturaRichiesta}
                 onCheckedChange={(stato) => setValue('fatturaRichiesta', stato === true)}
                 className="mt-0.5"
@@ -297,10 +319,15 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
 
             {fatturaRichiesta ? (
               <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                <Campo etichetta="Partita IVA" errore={errors.partitaIva?.message}>
+                <Campo
+                  nome="partita-iva"
+                  etichetta="Partita IVA"
+                  errore={errors.partitaIva?.message}
+                >
                   <Input inputMode="numeric" maxLength={13} {...register('partitaIva')} />
                 </Campo>
                 <Campo
+                  nome="codice-destinatario-sdi"
                   etichetta="Codice destinatario SDI"
                   errore={errors.codiceSdi?.message}
                   aiuto="Sette caratteri. Se non lo sai, chiedilo al tuo commercialista."
@@ -357,8 +384,9 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
           <p className="text-testo-tenue mt-1 text-xs">IVA inclusa.</p>
 
           <div className="mt-6 space-y-4">
-            <label className="flex items-start gap-3">
+            <label htmlFor="accetta-termini" className="flex items-start gap-3">
               <Checkbox
+                id="accetta-termini"
                 onCheckedChange={(stato) =>
                   setValue('accettaTermini', stato === true, { shouldValidate: true })
                 }
@@ -382,8 +410,9 @@ export function ModuloCheckout({ emailIniziale, capIniziale, pagamentiDisponibil
               </p>
             ) : null}
 
-            <label className="flex items-start gap-3">
+            <label htmlFor="newsletter-checkout" className="flex items-start gap-3">
               <Checkbox
+                id="newsletter-checkout"
                 onCheckedChange={(stato) => setValue('newsletter', stato === true)}
                 className="mt-0.5"
               />
@@ -456,6 +485,7 @@ function Sezione({
 }
 
 function Campo({
+  nome,
   etichetta,
   errore,
   aiuto,
@@ -463,14 +493,29 @@ function Campo({
   className,
   children,
 }: {
+  nome: string
   etichetta: string
   errore?: string
   aiuto?: string
   facoltativo?: boolean
   className?: string
-  children: React.ReactNode
+  children: ReactNode
 }) {
-  const id = etichetta.toLowerCase().replace(/[^a-z]+/g, '-')
+  const id = `campo-${nome}`
+  const idAiuto = aiuto && !errore ? `${id}-aiuto` : undefined
+  const idErrore = errore ? `${id}-errore` : undefined
+  const descrittoDa = [idAiuto, idErrore].filter(Boolean).join(' ') || undefined
+
+  // L'identificativo lo mette il contenitore: così l'etichetta resta sempre
+  // collegata al suo campo, e non si può dimenticare di scriverlo a mano.
+  const campo = isValidElement(children)
+    ? cloneElement(children as ReactElement<Record<string, unknown>>, {
+        id,
+        'aria-describedby': descrittoDa,
+        'aria-invalid': errore ? true : undefined,
+      })
+    : children
+
   return (
     <div className={className}>
       <Label htmlFor={id} className="flex items-baseline gap-2">
@@ -479,10 +524,14 @@ function Campo({
           <span className="text-testo-tenue text-xs font-normal">facoltativo</span>
         ) : null}
       </Label>
-      <div className="mt-1.5">{children}</div>
-      {aiuto && !errore ? <p className="text-testo-tenue mt-1.5 text-xs">{aiuto}</p> : null}
-      {errore ? (
-        <p role="alert" className="text-errore mt-1.5 text-sm">
+      <div className="mt-1.5">{campo}</div>
+      {idAiuto ? (
+        <p id={idAiuto} className="text-testo-tenue mt-1.5 text-xs">
+          {aiuto}
+        </p>
+      ) : null}
+      {idErrore ? (
+        <p id={idErrore} role="alert" className="text-errore mt-1.5 text-sm">
           {errore}
         </p>
       ) : null}

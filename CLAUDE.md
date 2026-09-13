@@ -35,8 +35,10 @@ pnpm test             # Vitest
 pnpm test:e2e         # Playwright
 pnpm db:generate      # genera le migration dallo schema
 pnpm db:migrate       # applica le migration
-pnpm db:seed          # popola il database di esempio
+pnpm db:seed          # dati di esempio (cancella quello che c'è)
+pnpm db:seed:prod     # solo spedizioni e FAQ, senza prodotti finti
 pnpm email:dev        # anteprima delle email transazionali
+pnpm verifica         # lint + tipi + test + build, in fila
 ```
 
 ## Design token
@@ -125,3 +127,18 @@ messages/           it.json (attivo), en.json (predisposto)
   dentro il webhook, che deve essere idempotente.
 - Le foto dei progetti si cancellano automaticamente dopo **12 mesi**.
 - Il backoffice lo usa un artigiano dal telefono, non un operatore e-commerce.
+- **Le etichette vanno collegate ai campi.** Nei moduli l'identificativo lo mette
+  il contenitore (`Campo`), non il singolo `input`: così non si può dimenticare.
+  Le caselle di Radix sono `<button role="checkbox">`, quindi servono `id` e
+  `htmlFor` — un `<label>` che le avvolge e basta non le rende cliccabili.
+- Se catturi un'eccezione attorno a `cookies()` o `redirect()`, rilancia con
+  `unstable_rethrow`: sono segnali interni di Next, non guasti.
+
+## Test
+
+- `pnpm test` gira ovunque: le prove che toccano il database si saltano da sole
+  senza `DATABASE_URL`.
+- `pnpm test:e2e` prova i due percorsi che devono funzionare sempre — comprare
+  un pezzo e mandare una richiesta di progetto — su telefono e desktop.
+  Il pagamento nel test è il bonifico: è l'unico che non porta fuori dal sito e
+  passa comunque da tutta la logica di prezzi e spedizione.

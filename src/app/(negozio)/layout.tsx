@@ -1,6 +1,8 @@
 import { Intestazione } from '@/components/layout/intestazione'
 import { Piede } from '@/components/layout/piede'
 import { PannelloCarrello } from '@/components/carrello/pannello-carrello'
+import { BannerCookie } from '@/components/conformita/banner-cookie'
+import { ScriptMisurazione } from '@/components/conformita/script-misurazione'
 
 /** Le pagine pubbliche: intestazione, piede e carrello. Il pannello /admin no. */
 export default function LayoutNegozio({ children }: { children: React.ReactNode }) {
@@ -15,6 +17,8 @@ export default function LayoutNegozio({ children }: { children: React.ReactNode 
       </main>
       <Piede />
       <PannelloCarrello />
+      <BannerCookie />
+      <ScriptMisurazione />
     </>
   )
 }

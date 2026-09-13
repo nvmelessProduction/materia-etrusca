@@ -1,5 +1,6 @@
 import 'server-only'
 import { cookies } from 'next/headers'
+import { unstable_rethrow } from 'next/navigation'
 import { componiCarrello, clientePerUtente, trovaCarrello } from '@/db/queries/carrello'
 import { sessioneUtente } from '@/lib/auth'
 import { carrelloVuoto, type CarrelloPubblico } from '@/lib/carrello/tipi'
@@ -41,6 +42,9 @@ export async function leggiCarrello(): Promise<CarrelloPubblico> {
     const carrello = await trovaCarrello(chiave)
     return componiCarrello(carrello)
   } catch (errore) {
+    // Next segnala con un'eccezione che la rotta è dinamica o va reindirizzata:
+    // quelle vanno rilanciate, o si rompe il rendering invece di ripararlo.
+    unstable_rethrow(errore)
     console.error('Lettura del carrello fallita:', errore)
     return carrelloVuoto
   }
