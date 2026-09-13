@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { site } from '@/lib/site'
 
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs))
@@ -60,6 +61,6 @@ export function isValidPostalCode(cap: string): boolean {
 }
 
 export function absoluteUrl(path: string): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-  return new URL(path, base).toString()
+  // Un solo punto decide qual è l'indirizzo del sito: `site.url`.
+  return new URL(path, site.url).toString()
 }

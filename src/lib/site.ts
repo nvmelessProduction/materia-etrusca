@@ -1,3 +1,37 @@
+/**
+ * Indirizzo pubblico del sito.
+ *
+ * Va risolto con attenzione perché da qui dipendono `metadataBase`, i link
+ * dentro le email, la sitemap e i dati strutturati — e viene usato al livello
+ * del modulo, quindi un valore storto fa fallire la build invece di degradare.
+ *
+ * In ordine: la variabile esplicita, poi il dominio che Vercel assegna
+ * all'anteprima (così un deploy funziona anche prima di aver configurato il
+ * dominio vero), infine lo sviluppo locale.
+ */
+export function risolviUrlSito(
+  esplicito: string | undefined,
+  dominioVercel?: string | undefined,
+): string {
+  const scelto = esplicito?.trim() || dominioVercel?.trim()
+
+  if (scelto) {
+    // Chi incolla "materiaetrusca.it" senza protocollo non deve far cadere niente.
+    const conProtocollo = /^https?:\/\//i.test(scelto) ? scelto : `https://${scelto}`
+    const pulito = conProtocollo.replace(/\/+$/, '')
+    try {
+      // Se l'indirizzo è comunque malformato si ripiega, non si solleva.
+      return new URL(pulito).origin + new URL(pulito).pathname.replace(/\/+$/, '')
+    } catch {
+      return SVILUPPO
+    }
+  }
+
+  return SVILUPPO
+}
+
+const SVILUPPO = 'http://localhost:3000'
+
 export const site = {
   name: 'Materia Etrusca',
   /** La frase che apre la home. Prima persona, asciutta. */
@@ -6,7 +40,10 @@ export const site = {
     'Vasi-scultura in cemento colato a mano a Cerveteri, ispirati alle forme etrusche.',
   description:
     'Vasi e fioriere scultura in cemento, colati e rifiniti a mano nel mio laboratorio di Cerveteri. Pezzi grandi da esterno, forme ispirate alla ceramica etrusca, ogni esemplare leggermente diverso dall’altro.',
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+  url: risolviUrlSito(
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.NEXT_PUBLIC_VERCEL_URL ?? process.env.VERCEL_URL,
+  ),
   locale: 'it_IT',
   artisan: {
     name: 'Materia Etrusca',
