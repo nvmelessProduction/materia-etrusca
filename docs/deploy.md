@@ -160,45 +160,83 @@ ci sia.
 
 ---
 
-## 6. Se invece vai su Hostinger (o un altro VPS)
+## 6. Se invece vai su un VPS
 
-Next.js in modalità standalone gira ovunque ci sia Node 20+. Serve però un
-processo che resti vivo: l'hosting condiviso PHP non basta, serve un piano VPS.
+Su una macchina tua conviene metterci **tutto**: sito, database e nginx sulla
+stessa macchina. PostgreSQL resta in ascolto solo su `localhost`, quindi non
+c'è una porta di database esposta a internet da difendere, e non c'è latenza
+fra sito e dati. Una bolletta sola, nessun limite di piano gratuito.
+
+Serve un VPS con **Ubuntu o Debian** e accesso root via SSH. Per questo sito
+bastano 1–2 vCPU e 2–4 GB di RAM; qualunque taglio superiore è margine.
+
+### Installazione, in un comando
+
+Punta il dominio al server (un record `A` verso l'IP del VPS, e uno per
+`www`), aspetta che si propaghi, poi da root:
 
 ```bash
-# sul server
-git clone <repo> && cd materia-etrusca
-corepack enable && pnpm install --frozen-lockfile
-cp .env.example .env && nano .env        # riempi le variabili
-pnpm db:migrate && pnpm db:seed:prod
-pnpm build
-pnpm start                                # ascolta sulla porta 3000
+curl -fsSL https://raw.githubusercontent.com/nvmelessProduction/materia-etrusca/main/scripts/installa-vps.sh -o installa.sh
+bash installa.sh --dominio materiaetrusca.it --email tu@example.com
 ```
 
-Poi:
+Fa tutto: pacchetti, Node 22, pnpm, PostgreSQL con utente e database
+dedicati, clone del codice, variabili d'ambiente con i segreti generati,
+migration, dati minimi, compilazione, servizio di sistema, nginx, certificato
+Let's Encrypt, firewall e operazioni pianificate.
 
-- **Tienilo vivo** con `pm2 start "pnpm start" --name materia-etrusca` o un
-  servizio systemd.
-- **Mettici davanti nginx** che gira la porta 443 sulla 3000, con certificato
-  Let's Encrypt.
-- **Le operazioni pianificate** su Vercel sono gratis, qui vanno rifatte a mano
-  con `crontab`:
+Si può **rilanciare**: quello che è già a posto viene saltato, i valori che hai
+compilato a mano nel file `.env` non vengono azzerati.
 
-  ```cron
-  0 10 * * * curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://iltuodominio.it/api/cron/carrelli-abbandonati
-  30 10 * * * curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://iltuodominio.it/api/cron/richieste-recensione
-  0 9 * * *  curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://iltuodominio.it/api/cron/promemoria-proposte
-  0 4 * * 1  curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://iltuodominio.it/api/cron/cancella-foto-progetti
-  0 8 * * 1  curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://iltuodominio.it/api/cron/riepilogo-settimanale
-  ```
+Se il dominio non punta ancora al server, aggiungi `--senza-tls` per provare in
+HTTP e chiedere il certificato dopo:
 
-- **L'ottimizzazione delle immagini** di `next/image` su un VPS usa `sharp`:
-  `pnpm add sharp` se non viene installato da sé.
+```bash
+certbot --nginx -d materiaetrusca.it -d www.materiaetrusca.it
+```
 
-Il resto — database, Stripe, Resend, Uploadthing — non cambia: sono servizi
-esterni e non sanno dove gira il sito.
+### Dopo l'installazione
 
----
+Le chiavi dei servizi esterni si mettono a mano:
+
+```bash
+nano /srv/materia-etrusca/.env
+systemctl restart materia-etrusca
+```
+
+Le più urgenti sono `RESEND_API_KEY`, `EMAIL_FROM` e `ADMIN_EMAILS`: senza
+quelle non si entra nemmeno in `/admin`, perché l'accesso è via link email.
+
+### Comandi di tutti i giorni
+
+```bash
+systemctl status materia-etrusca      # come sta
+journalctl -u materia-etrusca -f      # cosa sta facendo, in diretta
+bash /srv/materia-etrusca/scripts/aggiorna-vps.sh   # pubblica gli aggiornamenti
+```
+
+`aggiorna-vps.sh` prende il codice nuovo, applica le migration, ricompila e
+riavvia. Se la compilazione fallisce **il sito resta in piedi** con la versione
+precedente: il riavvio avviene solo a build riuscita.
+
+### I backup non li fa nessuno al posto tuo
+
+È la differenza vera rispetto a un servizio gestito. Il minimo sindacale:
+
+```bash
+cat > /etc/cron.daily/backup-materia <<'EOF'
+#!/bin/sh
+mkdir -p /var/backups/materia
+su postgres -c "pg_dump materia_etrusca" | gzip > \
+  "/var/backups/materia/$(date +%F).sql.gz"
+find /var/backups/materia -name '*.sql.gz' -mtime +30 -delete
+EOF
+chmod +x /etc/cron.daily/backup-materia
+```
+
+Copia una volta alla settimana quella cartella **fuori dal server**, o il
+giorno che il disco muore i backup muoiono con lui. Se il tuo fornitore offre
+gli snapshot, tienili accesi: costano poco e salvano la giornata.
 
 ## 7. Manutenzione
 

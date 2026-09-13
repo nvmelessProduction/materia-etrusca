@@ -62,6 +62,7 @@
     "react-hook-form": "^7.87.0",
     "resend": "^6.27.0",
     "server-only": "^0.0.1",
+    "sharp": "^0.35.4",
     "sonner": "^2.0.7",
     "stripe": "^22.6.2",
     "tailwind-merge": "^3.3.1",

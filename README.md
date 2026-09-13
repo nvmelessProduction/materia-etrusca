@@ -84,6 +84,25 @@ Le convenzioni, i design token e le regole visive stanno in
 
 ---
 
+## Metterlo online
+
+**Su Vercel:** importa il repository, metti `DATABASE_URL`, `NEXT_PUBLIC_SITE_URL`
+e `AUTH_SECRET`, distribuisci. Le tabelle si creano da
+`/api/installa?chiave=…` se non hai un terminale sottomano.
+
+**Su un VPS Ubuntu o Debian**, con tutto sulla stessa macchina — sito, database
+e nginx, con PostgreSQL che non espone nessuna porta a internet:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nvmelessProduction/materia-etrusca/main/scripts/installa-vps.sh -o installa.sh
+bash installa.sh --dominio iltuodominio.it --email tu@example.com
+```
+
+Poi si aggiorna con `bash /srv/materia-etrusca/scripts/aggiorna-vps.sh`.
+I dettagli, i backup compresi, stanno in [`docs/deploy.md`](./docs/deploy.md).
+
+---
+
 ## Le tre cose da sapere prima di metterci mano
 
 1. **I prezzi sono interi in centesimi, sempre.** Mai float, mai euro in un
