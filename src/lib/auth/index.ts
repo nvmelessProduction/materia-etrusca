@@ -56,12 +56,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth(configurazione)
 
 export type RuoloSessione = 'customer' | 'admin'
 
+const ID_ADMIN_SVILUPPO = '00000000-0000-4000-8000-000000000001'
+
+/**
+ * Scorciatoia **solo per lo sviluppo locale**: permette di lavorare al pannello
+ * senza configurare l'invio delle email. In produzione è inerte, qualunque cosa
+ * dicano le variabili d'ambiente.
+ */
+function amministratoreDiSviluppo(): {
+  id: string
+  email: string
+  nome: null
+  ruolo: RuoloSessione
+} | null {
+  if (process.env.NODE_ENV === 'production') return null
+  const email = optionalEnv('ADMIN_DEV_EMAIL')
+  if (!email) return null
+  // Identificativo fisso e valido come UUID: lo cercano anche le query del carrello.
+  return { id: ID_ADMIN_SVILUPPO, email, nome: null, ruolo: 'admin' }
+}
+
 export async function sessioneUtente(): Promise<{
   id: string
   email: string
   nome: string | null
   ruolo: RuoloSessione
 } | null> {
+  const sviluppo = amministratoreDiSviluppo()
+  if (sviluppo) return sviluppo
+
   // Senza provider configurati non esiste alcuna sessione: si evita il giro al database.
   if (!chiaveResend) return null
 

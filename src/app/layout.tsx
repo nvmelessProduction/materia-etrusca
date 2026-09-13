@@ -2,10 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { Toaster } from 'sonner'
-import { Intestazione } from '@/components/layout/intestazione'
-import { Piede } from '@/components/layout/piede'
 import { ProviderCarrello } from '@/components/carrello/contesto-carrello'
-import { PannelloCarrello } from '@/components/carrello/pannello-carrello'
 import { leggiCarrello } from '@/lib/carrello/server'
 import { fontDisplay, fontSans } from '@/lib/fonts'
 import { site } from '@/lib/site'
@@ -51,15 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="flex min-h-dvh flex-col antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ProviderCarrello iniziale={carrello}>
-            <a href="#contenuto" className="skip-link">
-              Vai al contenuto
-            </a>
-            <Intestazione />
-            <main id="contenuto" className="flex-1">
-              {children}
-            </main>
-            <Piede />
-            <PannelloCarrello />
+            {children}
             <Toaster
               position="bottom-center"
               toastOptions={{

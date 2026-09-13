@@ -26,11 +26,22 @@ export async function chiaveSessione(): Promise<ChiaveSessione> {
   return { guestToken, customerId: cliente?.id ?? null }
 }
 
-/** Lettura del carrello, usabile da qualunque Server Component. */
+/**
+ * Lettura del carrello, usabile da qualunque Server Component.
+ *
+ * Sta nel layout radice, quindi gira su **ogni** pagina del sito: se il
+ * database non risponde è giusto che il conteggio resti a zero, non che
+ * l'intero sito restituisca un errore. Il guasto finisce nei log.
+ */
 export async function leggiCarrello(): Promise<CarrelloPubblico> {
-  const chiave = await chiaveSessione()
-  if (!chiave.guestToken && !chiave.customerId) return carrelloVuoto
+  try {
+    const chiave = await chiaveSessione()
+    if (!chiave.guestToken && !chiave.customerId) return carrelloVuoto
 
-  const carrello = await trovaCarrello(chiave)
-  return componiCarrello(carrello)
+    const carrello = await trovaCarrello(chiave)
+    return componiCarrello(carrello)
+  } catch (errore) {
+    console.error('Lettura del carrello fallita:', errore)
+    return carrelloVuoto
+  }
 }
