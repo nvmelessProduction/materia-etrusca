@@ -14,14 +14,26 @@ import { adminEmails, optionalEnv } from '@/lib/env'
 
 const chiaveResend = optionalEnv('RESEND_API_KEY') ?? optionalEnv('AUTH_RESEND_KEY')
 
+/**
+ * L'adattatore Drizzle ispeziona la connessione appena viene costruito, e qui
+ * siamo al livello del modulo: senza questa guardia una build fatta prima di
+ * aver inserito le variabili d'ambiente fallirebbe nel raccogliere le rotte,
+ * invece di compilare e aspettare la configurazione.
+ */
+const conDatabase = Boolean(process.env.DATABASE_URL)
+
 const configurazione: NextAuthConfig = {
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-    verificationTokensTable: verificationTokens,
-  }),
-  session: { strategy: 'database', maxAge: 60 * 60 * 24 * 90 },
+  ...(conDatabase
+    ? {
+        adapter: DrizzleAdapter(db, {
+          usersTable: users,
+          accountsTable: accounts,
+          sessionsTable: sessions,
+          verificationTokensTable: verificationTokens,
+        }),
+        session: { strategy: 'database' as const, maxAge: 60 * 60 * 24 * 90 },
+      }
+    : {}),
   // Senza chiave email non si può accedere, ma il sito deve compilare lo stesso.
   providers: chiaveResend
     ? [
@@ -85,8 +97,8 @@ export async function sessioneUtente(): Promise<{
   const sviluppo = amministratoreDiSviluppo()
   if (sviluppo) return sviluppo
 
-  // Senza provider configurati non esiste alcuna sessione: si evita il giro al database.
-  if (!chiaveResend) return null
+  // Senza provider o senza database non esiste alcuna sessione: si evita il giro.
+  if (!chiaveResend || !conDatabase) return null
 
   const sessione = await auth()
   const utente = sessione?.user
@@ -108,5 +120,5 @@ export async function richiediAmministratore(): Promise<{ id: string; email: str
   return { id: utente.id, email: utente.email }
 }
 
-/** L'accesso è configurato solo se c'è di che mandare le email. */
-export const accessoDisponibile = Boolean(chiaveResend)
+/** L'accesso è configurato solo se c'è di che mandare le email e dove salvare. */
+export const accessoDisponibile = Boolean(chiaveResend) && conDatabase
