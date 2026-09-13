@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { fasceSpedizione } from '@/db/queries/spedizioni'
 import { pesoImballoVariante } from '@/db/queries/carrello'
+import { leggiCarrello } from '@/lib/carrello/server'
 import {
   calcolaSpedizione,
   opzionePredefinita,
@@ -64,6 +65,36 @@ export async function stimaSpedizioneVariante(
     righe: [{ pesoImballoKg, volumeImballoL: 0, quantita: lettura.data.quantita }],
     fasce,
     cap: lettura.data.cap ?? null,
+  })
+
+  const migliore = opzionePredefinita(risultato)
+
+  return {
+    ok: true,
+    risultato,
+    migliorePrezzoCents: migliore?.prezzoCents ?? null,
+    etaGiorni: migliore?.etaGiorni ?? null,
+  }
+}
+
+/**
+ * Stima per l'intero carrello. Il peso è la somma dei pesi a imballo:
+ * è quello che guarda il corriere, non il peso dei pezzi.
+ */
+export async function stimaSpedizioneCarrello(cap?: string): Promise<StimaSpedizione> {
+  const [carrello, fasce] = await Promise.all([leggiCarrello(), fasceSpedizione()])
+
+  const righe = carrello.righe.map((riga) => ({
+    pesoImballoKg: riga.pesoImballoKg,
+    volumeImballoL: 0,
+    quantita: riga.quantita,
+  }))
+
+  const capScelto = (cap ?? carrello.cap ?? '').trim()
+  const risultato = calcolaSpedizione({
+    righe,
+    fasce,
+    cap: capScelto === '' ? null : capScelto,
   })
 
   const migliore = opzionePredefinita(risultato)

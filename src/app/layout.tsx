@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import { Intestazione } from '@/components/layout/intestazione'
 import { Piede } from '@/components/layout/piede'
 import { ProviderCarrello } from '@/components/carrello/contesto-carrello'
+import { PannelloCarrello } from '@/components/carrello/pannello-carrello'
 import { leggiCarrello } from '@/lib/carrello/server'
 import { fontDisplay, fontSans } from '@/lib/fonts'
 import { site } from '@/lib/site'
@@ -58,6 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {children}
             </main>
             <Piede />
+            <PannelloCarrello />
             <Toaster
               position="bottom-center"
               toastOptions={{
