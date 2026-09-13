@@ -45,6 +45,25 @@ export async function consumaLimite(
   return true
 }
 
+/** Variante per chi ha già una chiave propria (un token, un identificativo). */
+export async function consumaLimiteChiave(
+  chiave: string,
+  opzioni: { quante: number; finestraMs: number },
+): Promise<boolean> {
+  const adesso = Date.now()
+  pulisci(adesso)
+
+  const finestra = finestre.get(chiave)
+  if (!finestra || finestra.scadenza <= adesso) {
+    finestre.set(chiave, { conteggio: 1, scadenza: adesso + opzioni.finestraMs })
+    return true
+  }
+  if (finestra.conteggio >= opzioni.quante) return false
+
+  finestra.conteggio += 1
+  return true
+}
+
 /** Azzera il contatore: serve solo ai test. */
 export function azzeraLimiti(): void {
   finestre.clear()

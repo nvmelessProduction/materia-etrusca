@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 /** A quindici giorni dalla consegna: il tempo di averlo usato davvero. */
 const GIORNI_ATTESA = 15
 
-export async function POST(richiesta: Request): Promise<Response> {
+async function esegui(richiesta: Request): Promise<Response> {
   if (!cronAutorizzato(richiesta)) {
     return NextResponse.json({ errore: 'Non autorizzato.' }, { status: 401 })
   }
@@ -43,3 +43,8 @@ export async function POST(richiesta: Request): Promise<Response> {
 
   return NextResponse.json({ ok: true, inviate })
 }
+
+// Vercel Cron chiama in GET e manda da sé `Authorization: Bearer $CRON_SECRET`.
+// In POST si può invocare a mano, con lo stesso segreto.
+export const GET = esegui
+export const POST = esegui

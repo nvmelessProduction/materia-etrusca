@@ -1,0 +1,9 @@
+{
+  "crons": [
+    { "path": "/api/cron/carrelli-abbandonati", "schedule": "0 10 * * *" },
+    { "path": "/api/cron/richieste-recensione", "schedule": "30 10 * * *" },
+    { "path": "/api/cron/promemoria-proposte", "schedule": "0 9 * * *" },
+    { "path": "/api/cron/cancella-foto-progetti", "schedule": "0 4 * * 1" },
+    { "path": "/api/cron/riepilogo-settimanale", "schedule": "0 8 * * 1" }
+  ]
+}
