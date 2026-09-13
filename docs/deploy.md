@@ -21,6 +21,21 @@ pnpm db:migrate      # crea le tabelle
 pnpm db:seed:prod    # fasce di spedizione e testi delle FAQ, nessun prodotto finto
 ```
 
+### Senza un computer sottomano
+
+Le stesse due cose si fanno dal browser, anche dal telefono:
+
+1. Su Vercel aggiungi la variabile `SETUP_SECRET` con un valore lungo a piacere.
+2. Rilancia il deploy.
+3. Apri `https://iltuodominio.it/api/installa?chiave=IL_VALORE_CHE_HAI_SCELTO`.
+
+Crea le tabelle e inserisce i dati minimi. Si può riaprire quante volte vuoi:
+le migration già applicate vengono saltate, i dati già presenti non vengono
+toccati, e non cancella mai niente.
+
+**Finita l'installazione togli `SETUP_SECRET` da Vercel**, così la pagina si
+spegne: la chiave viaggia nell'indirizzo, e gli indirizzi finiscono nei log.
+
 > `pnpm db:seed` (senza `:prod`) inserisce 12 prodotti di esempio e **cancella
 > quello che c'è**: usalo solo in locale.
 

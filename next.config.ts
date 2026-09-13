@@ -6,6 +6,11 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // La rotta di installazione applica le migration a runtime: i file .sql
+  // devono finire nel pacchetto della funzione, o in produzione non li trova.
+  outputFileTracingIncludes: {
+    '/api/installa': ['./drizzle/**/*'],
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
