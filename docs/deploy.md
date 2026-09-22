@@ -195,6 +195,30 @@ HTTP e chiedere il certificato dopo:
 certbot --nginx -d materiaetrusca.it -d www.materiaetrusca.it
 ```
 
+### Se il dominio non ce l'hai ancora
+
+Si può installare subito usando l'indirizzo IP del VPS al posto del dominio:
+
+```bash
+bash installa.sh --dominio 203.0.113.45
+```
+
+Con un IP nudo lo script va da solo in HTTP: nessuna autorità di
+certificazione emette un certificato per un indirizzo IP. Il sito si guarda e
+si riempie di prodotti, ma **non si vende**: senza HTTPS i pagamenti con carta
+non funzionano e il browser segnala il sito come non sicuro.
+
+Quando il dominio arriva, si punta un record `A` all'IP del VPS (e uno per
+`www`) e si rilancia lo stesso script con il dominio vero:
+
+```bash
+bash installa.sh --dominio materiaetrusca.it --email tu@example.com
+```
+
+Riscrive `NEXT_PUBLIC_SITE_URL`, la configurazione di nginx e le operazioni
+pianificate, e chiede il certificato. Non si perde niente: i dati restano
+dove sono.
+
 ### Dopo l'installazione
 
 Le chiavi dei servizi esterni si mettono a mano:

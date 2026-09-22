@@ -60,8 +60,33 @@ done
 [ "$(id -u)" -eq 0 ] || muori "va lanciato da root (prova con: sudo bash $0 ...)"
 [ -n "$DOMINIO" ] || muori "manca --dominio"
 
+# Let's Encrypt non rilascia certificati per un indirizzo IP: se al posto del
+# dominio c'è un IP, si va in HTTP senza chiedere niente a nessuno.
+SOLO_IP=0
+if printf '%s' "$DOMINIO" | grep -qE '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
+  SOLO_IP=1
+  SENZA_TLS=1
+fi
+
 if [ "$SENZA_TLS" -eq 0 ] && [ -z "$EMAIL" ]; then
   muori "per il certificato serve --email (oppure usa --senza-tls)"
+fi
+
+# Tutto quello che il sito scrive negli indirizzi — email, sitemap, link
+# canonici, conferme d'ordine — parte da qui: deve dire la verità su come
+# è davvero raggiungibile, altrimenti manda la gente su pagine che non aprono.
+if [ "$SENZA_TLS" -eq 1 ]; then
+  PROTOCOLLO="http"
+else
+  PROTOCOLLO="https"
+fi
+INDIRIZZO_SITO="$PROTOCOLLO://$DOMINIO"
+
+# Il "www." ha senso solo davanti a un dominio vero.
+if [ "$SOLO_IP" -eq 1 ]; then
+  NOMI_SERVER="$DOMINIO"
+else
+  NOMI_SERVER="$DOMINIO www.$DOMINIO"
 fi
 
 if [ ! -r /etc/os-release ]; then
@@ -166,7 +191,7 @@ cat > "$AMBIENTE" <<EOF
 # Le righe vuote vanno riempite a mano: finché restano vuote, quella
 # funzione semplicemente non compare sul sito.
 
-NEXT_PUBLIC_SITE_URL="https://$DOMINIO"
+NEXT_PUBLIC_SITE_URL="$INDIRIZZO_SITO"
 DATABASE_URL="$DATABASE_URL"
 AUTH_SECRET="$AUTH_SECRET"
 AUTH_TRUST_HOST="true"
@@ -287,7 +312,7 @@ cat > "/etc/nginx/sites-available/$SERVIZIO" <<EOF
 server {
     listen 80;
 $ASCOLTO_IPV6
-    server_name $DOMINIO www.$DOMINIO;
+    server_name $NOMI_SERVER;
 
     # Le foto dei progetti arrivano già ridotte dal browser, ma il margine serve.
     client_max_body_size 25m;
@@ -344,8 +369,7 @@ fi
 # ------------------------------------------------------- operazioni a orario
 
 passo "Programmo le operazioni automatiche"
-BASE="https://$DOMINIO"
-[ "$SENZA_TLS" -eq 1 ] && BASE="http://$DOMINIO"
+BASE="$INDIRIZZO_SITO"
 
 cat > /etc/cron.d/materia-etrusca <<EOF
 # Operazioni pianificate di Materia Etrusca.
@@ -368,12 +392,24 @@ chmod 644 /etc/cron.d/materia-etrusca
 # ------------------------------------------------------------------ riepilogo
 
 passo "Fatto"
-INDIRIZZO="https://$DOMINIO"
-[ "$SENZA_TLS" -eq 1 ] && INDIRIZZO="http://$DOMINIO"
+INDIRIZZO="$INDIRIZZO_SITO"
 
 cat <<EOF
 
   Il sito è su $INDIRIZZO
+EOF
+
+if [ "$SENZA_TLS" -eq 1 ]; then
+  cat <<EOF
+  ATTENZIONE: stai andando in HTTP, senza certificato.
+  Va bene per guardarlo, non per vendere: senza HTTPS i pagamenti con carta
+  non funzionano e il browser segnala il sito come non sicuro.
+  Quando avrai un dominio che punta qui:
+      bash $0 --dominio iltuodominio.it --email tu@example.com
+EOF
+fi
+
+cat <<EOF
   Il catalogo è vuoto: i pezzi si inseriscono da $INDIRIZZO/admin
 
   Prima di aprire davvero, riempi le righe vuote in:
