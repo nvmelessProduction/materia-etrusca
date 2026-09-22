@@ -3,6 +3,7 @@ import path from 'node:path'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
+import { seminaEsempi } from '@/db/semina-esempi'
 import { seminaProduzione } from '@/db/semina-produzione'
 import { optionalEnv } from '@/lib/env'
 
@@ -18,6 +19,11 @@ export const maxDuration = 60
  * popolamento non tocca quello che c'è già — e **non cancella mai niente**.
  *
  *   https://iltuosito.it/api/installa?chiave=IL_TUO_SETUP_SECRET
+ *
+ * Aggiungendo `&esempi=sostituisci` inserisce invece il catalogo finto, per
+ * mostrare il sito pieno prima che esistano i pezzi veri. Quella **cancella
+ * tutto** quello che trova, e per questo va chiesta per nome: è pensata per
+ * una copia dimostrativa, mai per il sito che vende.
  *
  * Protetta da `SETUP_SECRET`: senza quella variabile la rotta è spenta.
  * Finita l'installazione conviene togliere la variabile da Vercel: la chiave
@@ -79,7 +85,8 @@ async function esegui(richiesta: Request): Promise<Response> {
     )
   }
 
-  const chiave = new URL(richiesta.url).searchParams.get('chiave') ?? ''
+  const parametri = new URL(richiesta.url).searchParams
+  const chiave = parametri.get('chiave') ?? ''
   if (!chiaviCoincidono(chiave, segreto)) {
     return pagina(
       'Chiave sbagliata',
@@ -110,6 +117,19 @@ async function esegui(richiesta: Request): Promise<Response> {
     await migrate(drizzle(cliente), {
       migrationsFolder: path.join(process.cwd(), 'drizzle'),
     })
+
+    if (parametri.get('esempi') === 'sostituisci') {
+      const esempi = await seminaEsempi()
+
+      return pagina('Sito di esempio pronto.', [
+        '<ul>',
+        '<li>Tabelle create o già a posto.</li>',
+        `<li>${esempi.collezioni} collezioni e ${esempi.prodotti} prodotti finti inseriti, al posto di quello che c'era.</li>`,
+        '</ul>',
+        '<p>Puoi aprire il <a href="/">sito</a>: è pieno, si naviga e si arriva fino al carrello.</p>',
+        '<p class="tenue">Sono dati inventati e le foto sono segnaposto. Questa copia serve a far vedere com\u2019è fatto il sito, non a vendere: quando si parte davvero si rifà l\u2019installazione senza <code>&amp;esempi=sostituisci</code>, e i pezzi si inseriscono dal pannello.</p>',
+      ])
+    }
 
     const semina = await seminaProduzione()
 

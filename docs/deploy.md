@@ -39,6 +39,23 @@ spegne: la chiave viaggia nell'indirizzo, e gli indirizzi finiscono nei log.
 > `pnpm db:seed` (senza `:prod`) inserisce 12 prodotti di esempio e **cancella
 > quello che c'è**: usalo solo in locale.
 
+### Una copia da far vedere, piena di roba
+
+Per mostrare il sito a qualcuno prima che esistano i pezzi veri, allo stesso
+indirizzo si aggiunge `&esempi=sostituisci`:
+
+```
+https://il-progetto.vercel.app/api/installa?chiave=LA_CHIAVE&esempi=sostituisci
+```
+
+Inserisce 3 collezioni, 12 prodotti, recensioni, codici sconto e richieste di
+progetto già avviate: il sito si naviga intero, dal catalogo fino al carrello.
+
+**Cancella tutto quello che trova.** Va su una copia dimostrativa e mai sul
+sito che vende — per questo la parola va scritta per esteso e non basta un `1`.
+Quando si parte davvero si rifà l'installazione senza quel pezzo, e i prodotti
+si inseriscono dal pannello.
+
 ---
 
 ## 2. Le variabili d'ambiente
