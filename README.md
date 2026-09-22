@@ -101,6 +101,10 @@ bash installa.sh --dominio iltuodominio.it --email tu@example.com
 Poi si aggiorna con `bash /srv/materia-etrusca/scripts/aggiorna-vps.sh`.
 I dettagli, i backup compresi, stanno in [`docs/deploy.md`](./docs/deploy.md).
 
+Se non hai mai aperto un terminale, parti da
+[`docs/primi-passi.md`](./docs/primi-passi.md): è la stessa cosa spiegata
+passo per passo, dando per scontato che tu non sappia niente.
+
 ---
 
 ## Le tre cose da sapere prima di metterci mano
