@@ -276,6 +276,13 @@ done
 # PATH che `su` assegna agli altri utenti, quindi lì lo trovano tutti.
 npm install -g --prefix /usr/local "pnpm@$VERSIONE_PNPM" >/dev/null
 
+# npm eredita la umask di chi lo lancia. Se è restrittiva — e su parecchie
+# immagini di server lo è — i file globali nascono illeggibili per tutti
+# tranne root, e il servizio non riesce a eseguirli. root non se ne accorge
+# mai, perché i permessi non lo riguardano: il guasto salta fuori solo al
+# primo comando lanciato come utente normale.
+chmod -R a+rX /usr/local/lib/node_modules 2>/dev/null || true
+
 # Node e npm possono stare fuori dal PATH degli altri utenti: un collegamento
 # dove guardano tutti costa niente e toglie il problema alla radice.
 for binario in node npm npx; do
@@ -294,8 +301,36 @@ if [ ! -x "$PNPM" ]; then
   if [ -n "$altrove" ]; then ln -sfn "$altrove" "$PNPM"; fi
 fi
 
-if ! su "$UTENTE" -s /bin/bash -c "$PNPM --version" >/dev/null 2>&1; then
+# I collegamenti servono a poco se il file vero sta in una cartella che gli
+# altri utenti non possono attraversare: si aprono anche quelle. Ma solo se
+# stanno sotto una radice di sistema — se Node fosse installato in /root o in
+# una home, aprirla a tutti sarebbe un danno molto peggiore del guasto che si
+# sta riparando.
+for binario in node npm npx pnpm; do
+  reale="$(readlink -f "/usr/local/bin/$binario" 2>/dev/null || true)"
+  [ -n "$reale" ] && [ -e "$reale" ] || continue
+
+  case "$reale" in
+    /usr/*|/opt/*) : ;;
+    *) rosso "  $binario sta in $reale, fuori dalle cartelle di sistema: non tocco i permessi"
+       continue ;;
+  esac
+
+  chmod a+rx "$reale" 2>/dev/null || true
+  cartella="$(dirname "$reale")"
+  while [ -n "$cartella" ]; do
+    case "$cartella" in
+      /usr/*|/opt/*) : ;;
+      *) break ;;
+    esac
+    chmod a+rx "$cartella" 2>/dev/null || true
+    cartella="$(dirname "$cartella")"
+  done
+done
+
+if ! ESITO_PNPM="$(su "$UTENTE" -s /bin/bash -c "$PNPM --version" 2>&1)"; then
   rosso "pnpm non è raggiungibile dall'utente $UTENTE. Quello che vedo:"
+  rosso "  errore           $ESITO_PNPM"
   rosso "  node             $(command -v node 2>/dev/null || echo 'non trovato')"
   rosso "  npm              $(command -v npm 2>/dev/null || echo 'non trovato')"
   rosso "  npm prefix -g    $(npm prefix -g 2>/dev/null || echo '?')"
