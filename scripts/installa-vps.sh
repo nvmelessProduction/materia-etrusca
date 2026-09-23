@@ -366,11 +366,28 @@ else
   ASCOLTO_IPV6=""
 fi
 
+# HSTS dice al browser di non provare nemmeno a usare HTTP per un anno: copre
+# la prima richiesta, l'unica che la redirezione non protegge. Solo con il
+# certificato — senza, il sito diventa irraggiungibile per chi lo ha già
+# visitato. Niente `includeSubDomains`: su questo dominio stanno i sottodomini
+# di posta del registrar, e imporre HTTPS anche a loro romperebbe roba che non
+# è nostra.
+if [ "$SENZA_TLS" -eq 0 ]; then
+  HSTS='    add_header Strict-Transport-Security "max-age=31536000" always;'
+else
+  HSTS=""
+fi
+
 cat > "/etc/nginx/sites-available/$SERVIZIO" <<EOF
 server {
     listen 80;
 $ASCOLTO_IPV6
     server_name $NOMI_SERVER;
+
+    # La versione di nginx non serve a nessuno tranne a chi cerca bersagli.
+    server_tokens off;
+
+$HSTS
 
     # Le foto dei progetti arrivano già ridotte dal browser, ma il margine serve.
     client_max_body_size 25m;
@@ -380,6 +397,9 @@ $ASCOLTO_IPV6
         proxy_pass http://127.0.0.1:$PORTA;
         proxy_cache_valid 200 365d;
         add_header Cache-Control "public, max-age=31536000, immutable";
+        # Ripetuto apposta: un add_header dentro un blocco annulla quelli del
+        # blocco esterno invece di aggiungersi.
+$HSTS
     }
 
     location / {
