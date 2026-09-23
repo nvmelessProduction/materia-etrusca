@@ -105,6 +105,10 @@ Se non hai mai aperto un terminale, parti da
 [`docs/primi-passi.md`](./docs/primi-passi.md): è la stessa cosa spiegata
 passo per passo, dando per scontato che tu non sappia niente.
 
+Per l'apertura vera — dominio, pagamenti, pagine legali, controlli prima di
+dirlo a qualcuno — c'è [`docs/andare-online.md`](./docs/andare-online.md),
+dall'inizio alla fine e nell'ordine giusto.
+
 ---
 
 ## Le tre cose da sapere prima di metterci mano

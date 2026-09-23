@@ -87,12 +87,12 @@ export default async function LayoutAdmin({ children }: { children: React.ReactN
           </Link>
         </header>
 
-        <main className="flex-1 px-5 pt-6 pb-28 md:px-8 md:py-10 lg:pb-10">{children}</main>
+        <main className="flex-1 px-5 pt-6 pb-6 md:px-8 md:py-10">{children}</main>
 
         {/* Barra in basso: il pannello lo usa un artigiano dal telefono. */}
         <nav
           aria-label="Sezioni principali"
-          className="border-bordo bg-calce fixed inset-x-0 bottom-0 z-30 border-t lg:hidden"
+          className="border-bordo bg-calce fixed inset-x-0 bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] lg:hidden"
         >
           <ul className="grid grid-cols-4">
             {VOCI.filter((voce) => VOCI_MOBILE.includes(voce.href)).map((voce) => (
@@ -110,7 +110,7 @@ export default async function LayoutAdmin({ children }: { children: React.ReactN
         </nav>
 
         {/* Le sezioni meno frequenti restano raggiungibili anche da telefono. */}
-        <div className="border-bordo bg-calce border-t px-5 py-4 lg:hidden">
+        <div className="border-bordo bg-calce border-t px-5 pt-4 pb-[calc(5.5rem_+_env(safe-area-inset-bottom))] lg:hidden">
           <ul className="text-testo-tenue flex flex-wrap gap-x-5 gap-y-2 text-xs">
             {VOCI.filter((voce) => !VOCI_MOBILE.includes(voce.href)).map((voce) => (
               <li key={voce.href}>
