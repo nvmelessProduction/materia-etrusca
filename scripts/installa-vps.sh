@@ -257,36 +257,58 @@ passo "Installo pnpm"
 # **chiede conferma**, e uno script che si installa da solo non deve fermarsi
 # ad aspettare che qualcuno prema invio. Si installa la versione esatta che il
 # progetto dichiara, una volta sola, per tutti gli utenti.
-VERSIONE_PNPM="$(sed -n 's/.*"packageManager": *"pnpm@\([^"]*\)".*/\1/p' "$CARTELLA/package.json" | head -1)"
+VERSIONE_PNPM="$(sed -n 's/.*"packageManager": *"pnpm@\([^"+]*\).*/\1/p' "$CARTELLA/package.json" | head -1)"
 [ -n "$VERSIONE_PNPM" ] || VERSIONE_PNPM="latest"
-
-CARTELLA_NODE="$(dirname "$(command -v node)")"
 
 # Se su questa macchina qualcuno ha già lanciato `corepack enable`, i suoi
 # shim hanno la precedenza e riaprirebbero il problema del download a metà
-# installazione: si tolgono di mezzo prima di installare quello vero.
+# installazione: si tolgono di mezzo ovunque stiano, non solo accanto a node.
 corepack disable >/dev/null 2>&1 || true
-[ -L "$CARTELLA_NODE/pnpm" ] && rm -f "$CARTELLA_NODE/pnpm"
-
-if [ "$(pnpm --version 2>/dev/null || true)" != "$VERSIONE_PNPM" ]; then
-  npm install -g "pnpm@$VERSIONE_PNPM" >/dev/null
-fi
-
-# Node può stare fuori dal PATH degli altri utenti, a seconda di come è stato
-# installato. Il servizio gira come "$UTENTE": se lì dentro pnpm non si trova,
-# non parte niente. Si mettono dei collegamenti dove guardano tutti.
-for binario in node npm npx pnpm; do
-  [ -x "$CARTELLA_NODE/$binario" ] && ln -sfn "$CARTELLA_NODE/$binario" "/usr/local/bin/$binario"
+for cartella in /usr/bin /usr/local/bin "$(npm prefix -g 2>/dev/null || echo /usr)/bin"; do
+  for shim in pnpm pnpx; do
+    if [ -L "$cartella/$shim" ]; then rm -f "$cartella/$shim"; fi
+  done
 done
 
-su "$UTENTE" -s /bin/bash -c "pnpm --version" >/dev/null 2>&1 ||
-  muori "pnpm non è raggiungibile dall'utente $UTENTE: controlla l'installazione di Node"
+# --prefix /usr/local non è un dettaglio: senza, npm sceglie da sé dove mettere
+# i programmi globali, e dove sceglie dipende da come è stato installato Node.
+# Indovinarlo è stato il difetto di prima. /usr/local/bin è la prima voce del
+# PATH che `su` assegna agli altri utenti, quindi lì lo trovano tutti.
+npm install -g --prefix /usr/local "pnpm@$VERSIONE_PNPM" >/dev/null
 
-verde "pnpm $(su "$UTENTE" -s /bin/bash -c 'pnpm --version')"
+# Node e npm possono stare fuori dal PATH degli altri utenti: un collegamento
+# dove guardano tutti costa niente e toglie il problema alla radice.
+for binario in node npm npx; do
+  origine="$(command -v "$binario" 2>/dev/null || true)"
+  if [ -n "$origine" ] && [ "$origine" != "/usr/local/bin/$binario" ]; then
+    ln -sfn "$origine" "/usr/local/bin/$binario"
+  fi
+done
+
+PNPM="/usr/local/bin/pnpm"
+
+# Se una configurazione di npm sovrascrive --prefix, il binario finisce altrove:
+# lo si cerca e gli si mette il collegamento dove il servizio lo aspetta.
+if [ ! -x "$PNPM" ]; then
+  altrove="$(command -v pnpm 2>/dev/null || true)"
+  if [ -n "$altrove" ]; then ln -sfn "$altrove" "$PNPM"; fi
+fi
+
+if ! su "$UTENTE" -s /bin/bash -c "$PNPM --version" >/dev/null 2>&1; then
+  rosso "pnpm non è raggiungibile dall'utente $UTENTE. Quello che vedo:"
+  rosso "  node             $(command -v node 2>/dev/null || echo 'non trovato')"
+  rosso "  npm              $(command -v npm 2>/dev/null || echo 'non trovato')"
+  rosso "  npm prefix -g    $(npm prefix -g 2>/dev/null || echo '?')"
+  rosso "  $PNPM  $([ -x "$PNPM" ] && echo 'presente' || echo 'MANCANTE')"
+  rosso "  PATH di $UTENTE  $(su "$UTENTE" -s /bin/bash -c 'echo $PATH' 2>/dev/null || echo '?')"
+  muori "manda queste righe a chi ti assiste: dicono esattamente cosa manca"
+fi
+
+verde "pnpm $(su "$UTENTE" -s /bin/bash -c "$PNPM --version")"
 
 passo "Installo le dipendenze e compilo (ci vuole qualche minuto)"
-su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && pnpm install --frozen-lockfile"
-su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && set -a && . ./.env && set +a && pnpm db:migrate && pnpm db:seed:prod && pnpm build"
+su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && $PNPM install --frozen-lockfile"
+su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && set -a && . ./.env && set +a && $PNPM db:migrate && $PNPM db:seed:prod && $PNPM build"
 
 # ------------------------------------------------------------------ servizio
 
@@ -303,7 +325,7 @@ User=$UTENTE
 WorkingDirectory=$CARTELLA
 EnvironmentFile=$CARTELLA/.env
 Environment=PORT=$PORTA
-ExecStart=/usr/bin/env pnpm start
+ExecStart=/usr/local/bin/pnpm start
 Restart=always
 RestartSec=5
 # Il processo non ha bisogno di scrivere fuori dalla sua cartella.
