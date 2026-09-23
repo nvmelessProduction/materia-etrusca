@@ -402,6 +402,46 @@ ufw allow 'Nginx Full' >/dev/null
 ufw --force enable >/dev/null
 verde "Aperte solo SSH, 80 e 443. Il database non è raggiungibile da fuori."
 
+# ------------------------------------------------------------------- backup
+
+passo "Imposto il backup del database"
+# Una copia al giorno, trenta giorni di storico. Sta sullo stesso disco, quindi
+# **non è un backup vero**: protegge da un errore umano o da una migration
+# sbagliata, non dalla perdita della macchina. Per quello servono gli snapshot
+# del provider, o una copia scaricata altrove.
+CARTELLA_BACKUP="/var/backups/materia-etrusca"
+install -d -o postgres -g postgres -m 700 "$CARTELLA_BACKUP"
+
+cat > /usr/local/bin/materia-etrusca-backup <<EOF
+#!/bin/bash
+# Copia giornaliera del database, con trenta giorni di storico.
+set -euo pipefail
+NOME="$CARTELLA_BACKUP/\$(date +%F).sql.gz"
+pg_dump --no-owner --no-privileges "$DB_NOME" | gzip -9 > "\$NOME.parziale"
+mv "\$NOME.parziale" "\$NOME"
+find "$CARTELLA_BACKUP" -name '*.sql.gz' -mtime +30 -delete
+# Un tentativo fallito lascia il file a metà: si scrive su .parziale proprio
+# perché una copia rotta non sovrascriva mai l'ultima buona.
+find "$CARTELLA_BACKUP" -name '*.parziale' -mtime +1 -delete
+EOF
+chmod 750 /usr/local/bin/materia-etrusca-backup
+
+cat > /etc/cron.d/materia-etrusca-backup <<EOF
+# Backup del database di Materia Etrusca.
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+
+30 3 * * * postgres /usr/local/bin/materia-etrusca-backup
+EOF
+
+# Il primo si fa adesso: un backup che nessuno ha mai visto funzionare non è
+# un backup, è una speranza.
+if su postgres -s /bin/bash -c /usr/local/bin/materia-etrusca-backup; then
+  verde "Backup giornaliero alle 3:30 in $CARTELLA_BACKUP (30 giorni di storico). Il primo è già fatto."
+else
+  rosso "Il backup non è partito: controlla con  su postgres -c /usr/local/bin/materia-etrusca-backup"
+fi
+
 # --------------------------------------------------------------------- TLS
 
 if [ "$SENZA_TLS" -eq 0 ]; then
