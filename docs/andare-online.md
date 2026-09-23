@@ -142,6 +142,37 @@ azzera i valori che hai scritto a mano.
 
 Alla fine stampa l'indirizzo del sito e la lista di quello che manca.
 
+### Se il repository è privato
+
+`curl` e `git` non vedono un repository privato: rispondono **404**, come se non
+esistesse. Servono due cose.
+
+**Un token di sola lettura.** Su GitHub: _Settings_ → _Developer settings_ →
+_Personal access tokens_ → _Fine-grained tokens_ → _Generate new token_. Dai
+accesso **solo a questo repository**, e come permesso solo **Contents:
+Read-only**. Copia il valore, comincia con `github_pat_`.
+
+**Scaricare lo script passando dal token**, perché l'indirizzo pubblico non
+funziona:
+
+```bash
+export GITHUB_TOKEN=github_pat_IL_TUO_TOKEN
+curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" \
+  -H "Accept: application/vnd.github.raw" \
+  "https://api.github.com/repos/nvmelessProduction/materia-etrusca/contents/scripts/installa-vps.sh?ref=main" \
+  -o installa.sh
+bash installa.sh --dominio iltuodominio.it --email tua@email.it
+```
+
+Lo script legge `GITHUB_TOKEN` dall'ambiente e se lo tiene: le credenziali
+finiscono in `/srv/materia-etrusca/.git-credentials`, leggibile solo
+dall'utente del servizio, e `aggiorna-vps.sh` da lì in poi funziona senza che
+tu debba ripassarglielo.
+
+Il token si passa dall'ambiente e non come `--token` di proposito: gli
+argomenti di un comando si leggono in `ps` e restano nella cronologia della
+shell.
+
 ---
 
 ## 5. Le email

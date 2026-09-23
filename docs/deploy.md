@@ -205,6 +205,10 @@ Let's Encrypt, firewall e operazioni pianificate.
 Si può **rilanciare**: quello che è già a posto viene saltato, i valori che hai
 compilato a mano nel file `.env` non vengono azzerati.
 
+Se il repository è privato, GitHub risponde 404 sia a `curl` sia a `git`:
+serve un token di sola lettura in `GITHUB_TOKEN`. La procedura per esteso sta
+in [`andare-online.md`](./andare-online.md).
+
 Se il dominio non punta ancora al server, aggiungi `--senza-tls` per provare in
 HTTP e chiedere il certificato dopo:
 

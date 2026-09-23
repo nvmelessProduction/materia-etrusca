@@ -15,6 +15,7 @@
 #   --email       serve a Let's Encrypt per avvisarti alla scadenza
 #   --senza-tls   salta il certificato (per provare su un dominio finto)
 #   --repo        da dove clonare (predefinito: il repository del progetto)
+#   --token       token GitHub, se il repository è privato (o GITHUB_TOKEN)
 #
 # Si può rilanciare: quello che è già a posto viene saltato.
 
@@ -30,6 +31,10 @@ EMAIL=""
 SENZA_TLS=0
 REPO="https://github.com/nvmelessProduction/materia-etrusca.git"
 RAMO="main"
+# Serve solo se il repository è privato. Meglio passarlo dall'ambiente
+# (GITHUB_TOKEN=... bash installa-vps.sh ...) che come argomento: gli argomenti
+# si leggono in `ps` e restano nella cronologia della shell.
+TOKEN="${GITHUB_TOKEN:-}"
 
 UTENTE="materia"
 CARTELLA="/srv/materia-etrusca"
@@ -51,6 +56,7 @@ while [ $# -gt 0 ]; do
     --email)     EMAIL="${2:-}"; shift 2 ;;
     --repo)      REPO="${2:-}"; shift 2 ;;
     --ramo)      RAMO="${2:-}"; shift 2 ;;
+    --token)     TOKEN="${2:-}"; shift 2 ;;
     --senza-tls) SENZA_TLS=1; shift ;;
     -h|--help)   sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *)           muori "opzione sconosciuta: $1" ;;
@@ -162,7 +168,24 @@ passo "Prendo il codice"
 # init + fetch la cosa funziona comunque, e lo script resta rilanciabile.
 su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && git init -q"
 su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && git remote add origin '$REPO' 2>/dev/null || git remote set-url origin '$REPO'"
-su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && git fetch --depth 1 origin $RAMO"
+
+# Repository privato: le credenziali vanno in un file letto da git, non
+# nell'indirizzo del remoto. Così il token non finisce né in `ps`, né in
+# .git/config, né nei messaggi d'errore — e aggiorna-vps.sh lo riusa da sé.
+CREDENZIALI="$CARTELLA/.git-credentials"
+if [ -n "$TOKEN" ]; then
+  HOST="$(printf '%s' "$REPO" | sed -E 's#^https://([^/]+)/.*#\1#')"
+  install -o "$UTENTE" -g "$UTENTE" -m 600 /dev/null "$CREDENZIALI"
+  printf 'https://x-access-token:%s@%s\n' "$TOKEN" "$HOST" > "$CREDENZIALI"
+  su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && git config credential.helper 'store --file=$CREDENZIALI'"
+fi
+
+if ! su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && git fetch --depth 1 origin $RAMO"; then
+  if [ -z "$TOKEN" ]; then
+    muori "non riesco a scaricare il codice. Se il repository è privato serve un token di sola lettura: GITHUB_TOKEN=... bash $0 --dominio $DOMINIO ..."
+  fi
+  muori "non riesco a scaricare il codice: il token è scaduto o non ha accesso a $REPO"
+fi
 su "$UTENTE" -s /bin/bash -c "cd $CARTELLA && git checkout -f -B $RAMO FETCH_HEAD"
 
 # ------------------------------------------------------------------ ambiente
