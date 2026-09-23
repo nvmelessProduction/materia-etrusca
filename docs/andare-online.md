@@ -197,6 +197,37 @@ la sezione _Emails_ dice cosa è successo a ogni messaggio.
 
 ## 6. I pagamenti
 
+### Solo bonifico: una configurazione legittima
+
+Non sei obbligato a collegare Stripe. **Se non metti nessuna chiave, il
+checkout mostra solo il bonifico e lo seleziona da sé** — nessun pulsante
+rotto, nessuna voce a vuoto.
+
+È la scelta a commissione zero, e su pezzi da qualche centinaio di euro la
+differenza non è trascurabile. In cambio ti prendi un lavoro manuale e un
+rischio, e devono essere chiari a chi gestisce il negozio:
+
+1. Il cliente ordina e riceve per email l'IBAN e il numero d'ordine
+2. Fa il bonifico, che arriva in uno o due giorni lavorativi
+3. L'artigiano lo vede sul conto ed entra in `/admin/ordini`
+4. Sull'ordine c'è **«Bonifico non ancora incassato»**: preme il pulsante
+5. **Solo allora** la giacenza si scala e parte la conferma al cliente
+
+Il punto delicato è il passo 5: **finché il bonifico non è segnato, il pezzo
+resta comprabile da chiunque altro.** Su un pezzo unico vuol dire che due
+persone possono ordinarlo e solo la prima pagata se lo porta a casa. Il sito
+non combina guai — quando segni il secondo bonifico ti avvisa che la giacenza
+non c'è più e non fa niente — ma la telefonata di scuse la fa l'artigiano.
+
+Chi vende pezzi unici dovrebbe quindi **controllare il conto ogni giorno**, e
+mettere nelle condizioni di vendita che la disponibilità è garantita
+dall'incasso, non dall'ordine.
+
+Le chiavi da riempire sono tre, e sono più in basso in questa stessa sezione.
+
+Stripe si può aggiungere in qualsiasi momento: si mettono le chiavi, si
+riavvia, e il metodo compare da solo nel checkout. Non serve rifare niente.
+
 ### Stripe — carte, Apple Pay, Google Pay
 
 Su **stripe.com**, con la partita IVA del negozio. Chiedono i dati aziendali e
