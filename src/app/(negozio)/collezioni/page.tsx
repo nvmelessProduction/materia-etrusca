@@ -28,8 +28,8 @@ export default async function PaginaCollezioni() {
           Tre famiglie di forme, una sola materia.
         </h1>
         <p className="text-testo-tenue mt-6 max-w-xl text-base leading-relaxed">
-          Le forme le prendo dalla necropoli qui accanto. Cambia il materiale, non la proporzione: è
-          per questo che stanno bene anche in una casa di adesso.
+          Qui troverai a breve le mie prossime sculture: pezzi inediti ispirati alla Necropoli, che
+          arrivano a casa tua attraverso il mio artigianato vero.
         </p>
       </section>
 

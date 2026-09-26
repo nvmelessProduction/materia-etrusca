@@ -201,9 +201,8 @@ export default async function Home() {
               Costruisco i casseri, colo, aspetto tre settimane.
             </h2>
             <p className="text-testo-tenue mt-6 max-w-md leading-relaxed">
-              Il cemento ha bisogno dei suoi giorni per fare presa, e non si accorcia con nessun
-              trucco. È il motivo per cui faccio pochi pezzi alla volta, e perché quello che ti
-              arriva l’ho tirato fuori dal cassero io.
+              Il cemento ha bisogno dei suoi giorni per essere lavorato e fare presa. È il motivo
+              per cui faccio pochi pezzi alla volta.
             </p>
             <Link
               href="/storia"

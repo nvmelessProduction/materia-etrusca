@@ -28,9 +28,9 @@ export default function PaginaProgetto() {
           capisce, e un vaso da cinquanta chili non si rimanda indietro con leggerezza.
         </p>
         <p className="text-testo-tenue mt-5 max-w-xl leading-relaxed">
-          Allora facciamo così: mi mandi due foto del tuo spazio, io guardo com’è messa la luce e
-          che proporzioni ha, e ti rispondo con due o tre pezzi e il perché di ognuno. Ci metto tre
-          giorni. Non costa niente e non ti impegna a comprare.
+          Allora facciamo così: mi mandi due foto del tuo spazio, io valuto l’esposizione e che
+          proporzioni ha, e ti rispondo con una visione di due o tre vasi scultura e il perché di
+          ognuno. Ci impiegherò tre giorni. Non costa niente e non ti impegna ad acquistare.
         </p>
 
         <dl className="border-bordo mt-12 grid gap-8 border-y py-8 sm:grid-cols-3">

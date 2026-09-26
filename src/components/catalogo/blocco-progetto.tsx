@@ -10,7 +10,7 @@ export function BloccoProgetto({
   variante = 'scuro',
   className,
   titolo = 'Non trovi la misura giusta?',
-  testo = 'Mandami la foto del tuo spazio. Guardo esposizione, proporzioni e colori, e ti scrivo quali pezzi ci starebbero e perché. Ci metto tre giorni, non costa niente e non serve registrarsi.',
+  testo = 'Inviami la foto del tuo spazio. Valuterò esposizione, proporzioni e colori, e ti farò vedere quali pezzi farebbero al tuo caso e perché, gratuitamente e senza impegno.',
   azione = 'Mandami la foto',
 }: {
   variante?: 'scuro' | 'chiaro'
