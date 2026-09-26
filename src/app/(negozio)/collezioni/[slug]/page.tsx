@@ -125,7 +125,7 @@ export default async function PaginaCollezione({ params, searchParams }: Props) 
                     <BloccoProgetto
                       variante="chiaro"
                       titolo="Non trovi la misura giusta?"
-                      testo="Mandami la foto del tuo spazio: guardo luce e proporzioni e ti dico quali pezzi ci stanno. Ci metto tre giorni."
+                      testo="Inviami la foto del tuo spazio: valuterò esposizione e proporzioni e ti farò vedere quali pezzi farebbero al tuo caso."
                     />
                   </div>
                 ) : null}

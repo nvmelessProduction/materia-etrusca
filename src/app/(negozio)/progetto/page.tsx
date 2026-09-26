@@ -5,12 +5,12 @@ import { site } from '@/lib/site'
 export const metadata: Metadata = {
   title: 'Progetta il tuo angolo',
   description:
-    'Mandami la foto del tuo terrazzo o del tuo ingresso: guardo luce e proporzioni e ti dico quali vasi ci starebbero. Gratis, in tre giorni, senza registrarsi.',
+    'Inviami la foto del tuo terrazzo o del tuo ingresso: valuterò esposizione e proporzioni e ti farò vedere quali vasi farebbero al tuo caso. Gratuitamente, in tre giorni, senza registrarsi.',
   alternates: { canonical: '/progetto' },
   openGraph: {
     title: 'Progetta il tuo angolo — Materia Etrusca',
     description:
-      'Mandami la foto del tuo spazio: ti rispondo con una proposta fatta a mano, in tre giorni.',
+      'Inviami la foto del tuo spazio: ti rispondo con una proposta fatta a mano, in tre giorni.',
     url: '/progetto',
   },
 }

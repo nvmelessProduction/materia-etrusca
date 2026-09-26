@@ -240,8 +240,8 @@ export function SchedaInterattiva({
           <div className="border-bordo mt-6 border p-5">
             <p className="text-sm font-medium">Non sei sicuro che stia bene nel tuo spazio?</p>
             <p className="text-testo-tenue mt-1.5 text-sm">
-              Mandami la foto. Guardo luce e proporzioni e ti dico se questo è il pezzo giusto o se
-              ne serve un altro.
+              Inviami la foto. Valuterò esposizione e proporzioni e ti farò vedere se questo è il
+              pezzo giusto o se ne farebbe al tuo caso un altro.
             </p>
             <Link
               href="/progetto"
